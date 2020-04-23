@@ -1,0 +1,41 @@
+function sv_conditional_email_recipient( $recipient, $order ) {
+        // Bail on WC settings pages since the order object isn't yet set yet
+        // Not sure why this is even a thing, but shikata ga nai
+        $page = $_GET['page'] = isset( $_GET['page'] ) ? $_GET['page'] : '';
+        if ( 'wc-settings' === $page ) {
+                return $recipient; 
+        }
+        
+        // just in case
+        if ( ! $order instanceof WC_Order ) {
+                return $recipient; 
+        }
+        $items = $order->get_items();
+        
+        // check if a shipped product is in the order        
+        foreach ( $items as $item ) {
+                $product = $order->get_product_from_item( $item );
+                
+                // add our extra recipient if there's a shipped product - commas needed!
+                // we can bail if we've found one, no need to add the recipient more than once
+                if ( $product->get_id() == 438  ) {
+                        $recipient .= ', brookshire.orders@tacosadrian.com';
+                        echo "Hi";
+                        return $recipient;
+                        
+                }
+                elseif ($product->get_id() == 437)
+                {
+                        $recipient .= ', katy2.orders@tacosadrian.com';
+                        return $recipient;
+                }
+                elseif ($product->get_id() == 436)
+                {
+                        $recipient .= ', katy1.orders@tacosadrian.com';
+                        return $recipient;
+                }
+        }
+        
+        return $recipient;
+}
+add_filter( 'woocommerce_email_recipient_new_order', 'sv_conditional_email_recipient', 10, 2 );
